@@ -3,35 +3,317 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>Gujarat Sentinel Nexus</title>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-    <h1>Gujarat Sentinel Nexus</h1>
+    <!-- HEADER -->
+    <header class="header">
 
-    <p>Unified CCTV Intelligence & Vehicle Tracking Platform</p>
+        <div>
+            <div class="logo">
+                🛡️ Gujarat Sentinel
+            </div>
 
-    <hr>
+            <p class="subtitle">
+                Unified CCTV Intelligence Platform
+            </p>
+        </div>
 
-    <h2>Command Center</h2>
+        <div class="system-status">
+            <span class="status-dot"></span>
+            SYSTEM ONLINE
+        </div>
 
-    <p>🟢 Cameras Online: <strong>0</strong></p>
-    <p>🚨 Active Alerts: <strong>0</strong></p>
-    <p>🚗 Vehicles Tracked: <strong>0</strong></p>
+    </header>
 
-    <hr>
 
-    <h2>CCTV Map</h2>
+    <!-- MAIN CONTENT -->
+    <main>
 
-    <p>📍 CCTV cameras will appear here.</p>
+        <section class="welcome">
 
-    <hr>
+            <div>
+                <h1>Command Center</h1>
 
-    <h2>Recent Alerts</h2>
+                <p>
+                    Monitor cameras, detect vehicles and manage security alerts.
+                </p>
+            </div>
 
-    <p>No alerts yet.</p>
+            <div class="location">
+                🇮🇳 Gujarat, India
+            </div>
+
+        </section>
+
+
+        <!-- STATISTICS -->
+        <section class="stats">
+
+            <div class="stat-card">
+
+                <div class="stat-icon green">
+                    📹
+                </div>
+
+                <div>
+                    <p>Cameras Online</p>
+                    <h2>0</h2>
+                    <span>of 50 test cameras</span>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon red">
+                    🚨
+                </div>
+
+                <div>
+                    <p>Active Alerts</p>
+                    <h2>0</h2>
+                    <span>No active threats</span>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon blue">
+                    🚗
+                </div>
+
+                <div>
+                    <p>Vehicles Tracked</p>
+                    <h2>0</h2>
+                    <span>Today</span>
+                </div>
+
+            </div>
+
+
+            <div class="stat-card">
+
+                <div class="stat-icon purple">
+                    🧠
+                </div>
+
+                <div>
+                    <p>AI Detections</p>
+                    <h2>0</h2>
+                    <span>Today</span>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- MAP + ALERTS -->
+        <section class="main-grid">
+
+
+            <!-- MAP -->
+            <div class="panel map-panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <h2>CCTV Network Map</h2>
+
+                        <p>
+                            Camera locations across Gujarat
+                        </p>
+                    </div>
+
+                    <button>
+                        View Full Map
+                    </button>
+
+                </div>
+
+
+                <div class="map">
+
+                    <div class="map-label">
+                        🗺️ CCTV NETWORK
+                    </div>
+
+                    <div class="camera camera-1">📍</div>
+                    <div class="camera camera-2">📍</div>
+                    <div class="camera camera-3">📍</div>
+                    <div class="camera camera-4">📍</div>
+                    <div class="camera camera-5">📍</div>
+
+                    <div class="map-center">
+                        Gujarat
+                    </div>
+
+                </div>
+
+            </div>
+
+
+            <!-- ALERTS -->
+            <div class="panel">
+
+                <div class="panel-header">
+
+                    <div>
+                        <h2>Recent Alerts</h2>
+
+                        <p>
+                            Latest security events
+                        </p>
+                    </div>
+
+                    <span class="alert-count">
+                        0
+                    </span>
+
+                </div>
+
+
+                <div class="empty-alerts">
+
+                    <div class="empty-icon">
+                        ✓
+                    </div>
+
+                    <h3>No alerts</h3>
+
+                    <p>
+                        The system has not detected
+                        any watchlist matches.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- CAMERA STATUS -->
+        <section class="panel camera-panel">
+
+            <div class="panel-header">
+
+                <div>
+                    <h2>Camera Network</h2>
+
+                    <p>
+                        Current CCTV system status
+                    </p>
+                </div>
+
+                <button>
+                    Manage Cameras
+                </button>
+
+            </div>
+
+
+            <div class="camera-table">
+
+                <div class="table-header">
+                    <span>Camera</span>
+                    <span>Department</span>
+                    <span>Location</span>
+                    <span>Status</span>
+                </div>
+
+
+                <div class="table-row">
+
+                    <span>
+                        CAM-001
+                    </span>
+
+                    <span>
+                        Police
+                    </span>
+
+                    <span>
+                        Ahmedabad
+                    </span>
+
+                    <span class="online">
+                        ● Online
+                    </span>
+
+                </div>
+
+
+                <div class="table-row">
+
+                    <span>
+                        CAM-002
+                    </span>
+
+                    <span>
+                        Traffic
+                    </span>
+
+                    <span>
+                        Surat
+                    </span>
+
+                    <span class="online">
+                        ● Online
+                    </span>
+
+                </div>
+
+
+                <div class="table-row">
+
+                    <span>
+                        CAM-003
+                    </span>
+
+                    <span>
+                        Transport
+                    </span>
+
+                    <span>
+                        Vadodara
+                    </span>
+
+                    <span class="offline">
+                        ● Offline
+                    </span>
+
+                </div>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- FOOTER -->
+    <footer>
+
+        <p>
+            Gujarat Sentinel Nexus
+        </p>
+
+        <span>
+            CCTV Intelligence & Interoperability Platform
+        </span>
+
+    </footer>
+
 
 </body>
 </html>
