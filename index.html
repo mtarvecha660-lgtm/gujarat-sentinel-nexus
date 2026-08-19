@@ -184,18 +184,24 @@
 
                 <div class="empty-alerts">
 
-                    <div class="empty-icon">
-                        ✓
+                    <div class="empty-alerts" id="alertBox">
+
+    <div class="empty-icon">
+        ✓
+    </div>
+
+    <h3 id="alertTitle">No alerts</h3>
+
+    <p id="alertMessage">
+        The system has not detected
+        any watchlist matches.
+    </p>
+
+    <button onclick="createTestAlert()" class="test-button">
+        🚨 Test Alert
+    </button>
+
                     </div>
-
-                    <h3>No alerts</h3>
-
-                    <p>
-                        The system has not detected
-                        any watchlist matches.
-                    </p>
-
-                </div>
 
             </div>
 
@@ -314,6 +320,25 @@
 
     </footer>
 
+<script>
 
+function createTestAlert() {
+
+    const title = document.getElementById("alertTitle");
+    const message = document.getElementById("alertMessage");
+    const box = document.getElementById("alertBox");
+
+    title.innerText = "🚨 WATCHLIST MATCH DETECTED";
+
+    message.innerHTML =
+        "<strong>Vehicle:</strong> GJ05AB1234<br>" +
+        "<strong>Camera:</strong> CAM-017<br>" +
+        "<strong>Location:</strong> Ahmedabad<br>" +
+        "<strong>Status:</strong> STOLEN VEHICLE";
+
+    box.style.background = "#fff1f1";
+}
+
+</script>
 </body>
 </html>
