@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>Vehicle Watchlist - Gujarat Sentinel Nexus</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<header class="header">
+
+    <div>
+
+        <div class="logo">
+            🛡️ Gujarat Sentinel
+        </div>
+
+        <p class="subtitle">
+            Vehicle Intelligence & Watchlist
+        </p>
+
+    </div>
+
+    <div class="system-status">
+
+        <span class="status-dot"></span>
+
+        SYSTEM ONLINE
+
+    </div>
+
+</header>
+
+
+
+<main>
+
+
+<section class="welcome">
+
+    <div>
+
+        <h1>Vehicle Watchlist</h1>
+
+        <p>
+            Vehicles currently monitored by the system.
+        </p>
+
+    </div>
+
+    <div class="location">
+        🇮🇳 Gujarat
+    </div>
+
+</section>
+
+
+
+<section class="panel">
+
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>Search Watchlist</h2>
+
+            <p>
+                Search for a vehicle number.
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="search-box">
+
+        <input
+            type="text"
+            id="vehicleSearch"
+            placeholder="Enter vehicle number e.g. GJ05AB1234"
+        >
+
+        <button onclick="searchVehicle()">
+            🔍 Search
+        </button>
+
+    </div>
+
+
+
+    <div id="searchResult"></div>
+
+
+</section>
+
+
+
+<br>
+
+
+
+<section class="panel">
+
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>Monitored Vehicles</h2>
+
+            <p>
+                Vehicles currently on the watchlist.
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="camera-table">
+
+
+        <div class="table-header">
+
+            <span>Vehicle</span>
+
+            <span>Type</span>
+
+            <span>Reason</span>
+
+            <span>Status</span>
+
+        </div>
+
+
+
+        <div class="table-row">
+
+            <span>
+                GJ05AB1234
+            </span>
+
+            <span>
+                Car
+            </span>
+
+            <span>
+                Stolen Vehicle
+            </span>
+
+            <span class="offline">
+                🚨 Stolen
+            </span>
+
+        </div>
+
+
+
+        <div class="table-row">
+
+            <span>
+                GJ01XY7788
+            </span>
+
+            <span>
+                Motorcycle
+            </span>
+
+            <span>
+                Wanted
+            </span>
+
+            <span class="offline">
+                ⚠️ Wanted
+            </span>
+
+        </div>
+
+
+
+        <div class="table-row">
+
+            <span>
+                GJ18AA4321
+            </span>
+
+            <span>
+                Car
+            </span>
+
+            <span>
+                Blacklisted
+            </span>
+
+            <span class="offline">
+                🚨 Blacklisted
+            </span>
+
+        </div>
+
+
+    </div>
+
+
+</section>
+
+
+</main>
+
+
+
+<footer>
+
+    <p>
+        Gujarat Sentinel Nexus
+    </p>
+
+    <span>
+        CCTV Intelligence & Interoperability Platform
+    </span>
+
+</footer>
+
+
+
+<script>
+
+function searchVehicle() {
+
+    const input =
+        document.getElementById("vehicleSearch");
+
+    const result =
+        document.getElementById("searchResult");
+
+    const vehicle =
+        input.value.trim().toUpperCase();
+
+
+    if (vehicle === "") {
+
+        result.innerHTML =
+            "<p>Please enter a vehicle number.</p>";
+
+        return;
+
+    }
+
+
+    if (vehicle === "GJ05AB1234") {
+
+        result.innerHTML = `
+
+            <div class="panel"
+                 style="margin-top:20px;background:#fff1f1;">
+
+                <h3>
+                    🚨 WATCHLIST MATCH
+                </h3>
+
+                <br>
+
+                <p>
+                    <strong>Vehicle:</strong>
+                    GJ05AB1234
+                </p>
+
+                <p>
+                    <strong>Type:</strong>
+                    Car
+                </p>
+
+                <p>
+                    <strong>Status:</strong>
+                    STOLEN
+                </p>
+
+                <p>
+                    <strong>Priority:</strong>
+                    HIGH
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+    else {
+
+        result.innerHTML = `
+
+            <div class="panel"
+                 style="margin-top:20px;background:#eaf7ef;">
+
+                <h3>
+                    ✓ No Watchlist Match
+                </h3>
+
+                <br>
+
+                <p>
+                    Vehicle
+                    <strong>${vehicle}</strong>
+                    was not found on the current watchlist.
+                </p>
+
+            </div>
+
+        `;
+
+    }
+
+}
+
+</script>
+
+
+</body>
+
+</html>
