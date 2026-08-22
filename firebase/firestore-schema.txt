@@ -1,0 +1,306 @@
+Firebase Firestore Schema for Gujarat Sentinel Nexus
+======================================================
+
+This document defines the planned Firestore collections and their document structure.
+Collections will be created in Phase 4+ when Firebase is connected to the frontend.
+
+---
+
+COLLECTION: users
+==================
+
+Document ID: {uid} (Firebase Authentication UID)
+
+Fields:
+  - email (string)
+    Purpose: User login email
+    Unique: Yes (managed by Firebase Auth)
+
+  - displayName (string)
+    Purpose: User's full name
+    Example: "Moksh Tarvecha"
+
+  - department (string)
+    Purpose: Department assignment (Police, Traffic, Transport, Admin)
+    References: Department ID or name
+
+  - role (string)
+    Purpose: Access level (ADMIN, DEPARTMENT_HEAD, OPERATOR, VIEWER)
+    Enum: ['ADMIN', 'DEPARTMENT_HEAD', 'OPERATOR', 'VIEWER']
+
+  - createdAt (timestamp)
+    Purpose: User account creation time
+
+  - lastLogin (timestamp)
+    Purpose: Last authentication time
+
+  - isActive (boolean)
+    Purpose: Account status (true = active, false = disabled)
+
+---
+
+COLLECTION: vehicles
+====================
+
+Document ID: {vehicleId} (auto-generated)
+
+Fields:
+  - plateNumber (string)
+    Purpose: Vehicle registration plate (e.g., "GJ05AB1234")
+    Unique: Yes
+    Indexed: Yes (for search)
+
+  - vehicleType (string)
+    Purpose: Type of vehicle (Car, Motorcycle, Truck, Bus, etc.)
+    Enum: ['Car', 'Motorcycle', 'Truck', 'Bus', 'Auto', 'Other']
+
+  - make (string)
+    Purpose: Manufacturer (e.g., "Honda", "Maruti")
+
+  - model (string)
+    Purpose: Model name (e.g., "Civic", "Swift")
+
+  - color (string)
+    Purpose: Vehicle color
+
+  - reasonForWatchlist (string)
+    Purpose: Why vehicle is monitored
+    Enum: ['Stolen', 'Wanted', 'Blacklisted', 'Suspicious', 'Other']
+
+  - priorityLevel (string)
+    Purpose: Alert priority
+    Enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']
+
+  - isActive (boolean)
+    Purpose: Is vehicle still on watchlist?
+
+  - createdBy (string)
+    Purpose: UID of user who added vehicle
+    References: users.{uid}
+
+  - createdAt (timestamp)
+    Purpose: When vehicle was added to watchlist
+
+  - updatedAt (timestamp)
+    Purpose: Last modification time
+
+---
+
+COLLECTION: cameras
+====================
+
+Document ID: {cameraId} (auto-generated)
+
+Fields:
+  - cameraCode (string)
+    Purpose: Human-readable camera ID (e.g., "CAM-001")
+    Unique: Yes
+    Indexed: Yes
+
+  - name (string)
+    Purpose: Display name (e.g., "Ahmedabad Traffic Cam 1")
+
+  - location (string)
+    Purpose: Physical location (e.g., "Ahmedabad, SG Highway")
+
+  - department (string)
+    Purpose: Department that manages camera
+    References: Department (Police, Traffic, Transport, etc.)
+
+  - ipAddress (string)
+    Purpose: Camera IP address (for RTMP/stream connection)
+
+  - rtmpUrl (string)
+    Purpose: RTMP stream URL for live video
+
+  - vmsId (string)
+    Purpose: Third-party VMS system identifier
+
+  - status (string)
+    Purpose: Current camera status
+    Enum: ['ONLINE', 'OFFLINE', 'ERROR', 'MAINTENANCE']
+
+  - lastHeartbeat (timestamp)
+    Purpose: Last time camera reported status
+
+  - createdAt (timestamp)
+    Purpose: When camera was registered
+
+  - updatedAt (timestamp)
+    Purpose: Last modification time
+
+---
+
+COLLECTION: alerts
+===================
+
+Document ID: {alertId} (auto-generated)
+
+Fields:
+  - alertType (string)
+    Purpose: Type of alert
+    Enum: ['WATCHLIST_MATCH', 'SUSPICIOUS_ACTIVITY', 'SYSTEM_ERROR', 'MANUAL_ALERT']
+
+  - vehicleId (string)
+    Purpose: Vehicle that triggered alert
+    References: vehicles.{vehicleId}
+
+  - vehiclePlate (string)
+    Purpose: Denormalized vehicle plate for quick display
+
+  - cameraId (string)
+    Purpose: Camera that detected vehicle
+    References: cameras.{cameraId}
+
+  - vehicleEventId (string)
+    Purpose: Link to detection event
+    References: vehicle_events.{eventId}
+
+  - severity (string)
+    Purpose: Alert urgency
+    Enum: ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL']
+
+  - status (string)
+    Purpose: Alert handling status
+    Enum: ['OPEN', 'ACKNOWLEDGED', 'RESOLVED', 'FALSE_POSITIVE']
+
+  - assignedTo (string)
+    Purpose: UID of assigned operator
+    References: users.{uid}
+
+  - description (string)
+    Purpose: Alert details (e.g., "Stolen vehicle GJ05AB1234 detected at CAM-017")
+
+  - createdAt (timestamp)
+    Purpose: When alert was generated
+
+  - acknowledgedAt (timestamp)
+    Purpose: When operator acknowledged alert
+
+  - resolvedAt (timestamp)
+    Purpose: When alert was closed
+
+---
+
+COLLECTION: vehicle_events
+===========================
+
+Document ID: {eventId} (auto-generated)
+
+Fields:
+  - vehicleId (string)
+    Purpose: Vehicle that was detected
+    References: vehicles.{vehicleId}
+
+  - vehiclePlate (string)
+    Purpose: Denormalized plate for query efficiency
+
+  - cameraId (string)
+    Purpose: Camera where vehicle was detected
+    References: cameras.{cameraId}
+
+  - cameraLocation (string)
+    Purpose: Denormalized camera location
+
+  - timestamp (timestamp)
+    Purpose: When detection occurred (video frame time)
+    Indexed: Yes
+
+  - anprConfidence (number)
+    Purpose: ANPR accuracy score (0.0 to 1.0)
+    Example: 0.95
+
+  - imageUrl (string)
+    Purpose: URL to alert/detection image in Cloud Storage
+
+  - direction (string)
+    Purpose: Direction of travel (e.g., "North", "South", "East-bound")
+
+  - speedKmh (number)
+    Purpose: Estimated vehicle speed
+
+  - recordedBy (string)
+    Purpose: Source of detection
+    Enum: ['ANPR', 'MANUAL', 'AI_DETECTOR', 'SIMULATION']
+
+  - createdAt (timestamp)
+    Purpose: When event record was created
+
+Index: Composite index on (vehicleId, timestamp) for event history queries
+Index: Composite index on (cameraId, timestamp) for camera activity queries
+
+---
+
+COLLECTION: audit_logs
+=======================
+
+Document ID: {logId} (auto-generated)
+
+Fields:
+  - userId (string)
+    Purpose: UID of user who performed action
+    References: users.{uid}
+
+  - action (string)
+    Purpose: What action was performed
+    Examples: "USER_LOGIN", "VEHICLE_ADDED", "ALERT_ACKNOWLEDGED"
+    Indexed: Yes
+
+  - resourceType (string)
+    Purpose: What was modified
+    Examples: "vehicle", "camera", "alert", "user"
+
+  - resourceId (string)
+    Purpose: ID of modified resource
+
+  - oldValue (map)
+    Purpose: Previous state (for updates)
+
+  - newValue (map)
+    Purpose: New state (for updates)
+
+  - ipAddress (string)
+    Purpose: User's IP address for security
+
+  - timestamp (timestamp)
+    Purpose: When action occurred
+    Indexed: Yes
+
+  - status (string)
+    Purpose: Action result
+    Enum: ['SUCCESS', 'FAILED', 'PARTIAL']
+
+Index: Composite index on (userId, timestamp) for user activity
+Index: Composite index on (timestamp) for chronological audit trail
+
+---
+
+NOTES FOR IMPLEMENTATION
+=========================
+
+1. Security Rules (Test Mode for Hackathon):
+   - Phase 2: All collections in "test mode" (anyone can read/write)
+   - Phase 3+: Implement role-based access control rules
+
+2. Indexes:
+   - Firestore will auto-suggest composite indexes after initial queries
+   - Manual indexes created as needed during Phase 4+
+
+3. Document Relationships:
+   - No automatic joins (Firestore is NoSQL)
+   - Denormalize frequently accessed fields (e.g., vehiclePlate in alerts, cameraLocation in events)
+   - Query by IDs and fetch referenced documents manually in code
+
+4. Timestamps:
+   - Use Firestore server timestamp for consistency
+   - Never use client time
+
+5. Scalability:
+   - Schema supports growth to thousands of vehicles, cameras, events
+   - Partition strategies can be implemented in Phase 3+ if needed
+
+6. Not Included (For Future):
+   - Cloud Storage (for full video storage)
+   - Real-time messaging (for alert notifications)
+   - Machine Learning (for vehicle/face detection)
+   - Backup strategies
