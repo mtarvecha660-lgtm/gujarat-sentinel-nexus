@@ -1,17 +1,22 @@
-import { createAlert } from "./firestore.js";
+import {
+    createAlert,
+    getRecentAlerts
+} from "./firestore.js";
 
+
+// Create a test alert
 async function createTestAlert() {
+
     const title = document.getElementById("alertTitle");
     const message = document.getElementById("alertMessage");
     const box = document.getElementById("alertBox");
 
-    // Show loading state
     title.innerText = "⏳ CREATING ALERT...";
     message.innerHTML = "Saving alert to Firebase...";
     box.style.background = "#fff8e1";
 
     try {
-        // Create real alert in Firestore
+
         await createAlert({
             vehiclePlate: "GJ05AB1234",
             cameraId: "CAM-017",
@@ -22,7 +27,6 @@ async function createTestAlert() {
             message: "Stolen vehicle detected"
         });
 
-        // Update dashboard
         title.innerText = "🚨 WATCHLIST MATCH DETECTED";
 
         message.innerHTML =
@@ -33,7 +37,11 @@ async function createTestAlert() {
 
         box.style.background = "#fff1f1";
 
+        // Reload alerts after creating one
+        await loadAlerts();
+
     } catch (error) {
+
         console.error("Alert creation error:", error);
 
         title.innerText = "⚠️ ALERT CREATION FAILED";
@@ -45,4 +53,110 @@ async function createTestAlert() {
     }
 }
 
+
+// Load alerts from Firestore
+async function loadAlerts() {
+
+    try {
+
+        const alerts = await getRecentAlerts(10);
+
+        const alertBox = document.getElementById("alertBox");
+
+        if (!alertBox) {
+            return;
+        }
+
+        // No alerts
+        if (alerts.length === 0) {
+
+            alertBox.innerHTML = `
+                <div class="empty-alerts">
+
+                    <div class="empty-icon">
+                        ✓
+                    </div>
+
+                    <p>No alerts</p>
+
+                </div>
+            `;
+
+            return;
+        }
+
+
+        // Display alerts
+        alertBox.innerHTML = "";
+
+        alerts.forEach((alert) => {
+
+            const alertElement = document.createElement("div");
+
+            alertElement.className = "alert-item";
+
+            let timestamp = "Unknown time";
+
+            if (alert.createdAt && alert.createdAt.toDate) {
+                timestamp =
+                    alert.createdAt.toDate().toLocaleString();
+            }
+
+            alertElement.innerHTML = `
+
+                <div class="alert-header">
+
+                    <strong>
+                        🚨 ${alert.type || "ALERT"}
+                    </strong>
+
+                    <span>
+                        ${alert.severity || "HIGH"}
+                    </span>
+
+                </div>
+
+                <p>
+                    <strong>Vehicle:</strong>
+                    ${alert.vehiclePlate || "Unknown"}
+                </p>
+
+                <p>
+                    <strong>Camera:</strong>
+                    ${alert.cameraId || "Unknown"}
+                </p>
+
+                <p>
+                    <strong>Location:</strong>
+                    ${alert.location || "Unknown"}
+                </p>
+
+                <p>
+                    <strong>Status:</strong>
+                    ${alert.status || "OPEN"}
+                </p>
+
+                <small>
+                    ${timestamp}
+                </small>
+
+            `;
+
+            alertBox.appendChild(alertElement);
+
+        });
+
+    } catch (error) {
+
+        console.error("Error loading alerts:", error);
+
+    }
+}
+
+
+// Make test button accessible from HTML
 window.createTestAlert = createTestAlert;
+
+
+// Load alerts when dashboard opens
+loadAlerts();
