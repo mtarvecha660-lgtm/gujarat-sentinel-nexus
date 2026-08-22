@@ -273,14 +273,14 @@ async function loadAlerts() {
                     ✓
                 </div>
 
-                <h3>
-                    No alerts
-                </h3>
+                <h3 id="alertTitle">
+    No alerts
+</h3>
 
-                <p>
-                    The system has not detected
-                    any watchlist matches.
-                </p>
+<p id="alertMessage">
+    The system has not detected
+    any watchlist matches.
+</p>
 
                 <button
                     onclick="createTestAlert()"
