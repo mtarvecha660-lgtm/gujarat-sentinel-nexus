@@ -140,27 +140,37 @@ export async function createAlert(alertData) {
 
 
 // Get recent alerts
+// Get recent alerts
 export async function getRecentAlerts(maxResults = 10) {
     const alertsRef = collection(db, "alerts");
 
-    const alertsQuery = query(
-        alertsRef,
-        orderBy("createdAt", "desc"),
-        limit(maxResults)
-    );
-
-    const snapshot = await getDocs(alertsQuery);
+    const snapshot = await getDocs(alertsRef);
 
     const alerts = [];
 
     snapshot.forEach((document) => {
+        const data = document.data();
+
         alerts.push({
             id: document.id,
-            ...document.data()
+            ...data
         });
     });
 
-    return alerts;
+    // Sort newest first
+    alerts.sort((a, b) => {
+        const timeA = a.createdAt?.toMillis
+            ? a.createdAt.toMillis()
+            : 0;
+
+        const timeB = b.createdAt?.toMillis
+            ? b.createdAt.toMillis()
+            : 0;
+
+        return timeB - timeA;
+    });
+
+    return alerts.slice(0, maxResults);
 }
 
 
