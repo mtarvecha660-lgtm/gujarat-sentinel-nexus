@@ -1,100 +1,245 @@
-import { getVehicleByPlate } from "./firestore.js";
+<!DOCTYPE html>
+<html lang="en">
 
-async function searchVehicle() {
-    const input = document.getElementById("vehicleSearch");
-    const result = document.getElementById("searchResult");
+<head>
 
-    const vehicle = input.value.trim().toUpperCase();
+    <meta charset="UTF-8">
 
-    if (vehicle === "") {
-        result.innerHTML = "<p>Please enter a vehicle number.</p>";
-        return;
-    }
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
-    result.innerHTML = `
-        <div class="panel" style="margin-top:20px;">
-            <p>🔍 Searching watchlist...</p>
+    <title>Vehicle Watchlist - Gujarat Sentinel Nexus</title>
+
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+
+<body>
+
+
+<header class="header">
+
+    <div>
+
+        <div class="logo">
+            🛡️ Gujarat Sentinel
         </div>
-    `;
 
-    try {
-        const vehicleData = await getVehicleByPlate(vehicle);
+        <p class="subtitle">
+            Vehicle Intelligence & Watchlist
+        </p>
 
-        if (vehicleData) {
-            result.innerHTML = `
-                <div class="panel"
-                    style="margin-top:20px;background:#fff1f1;">
+    </div>
 
-                    <h3>🚨 WATCHLIST MATCH</h3>
+    <div class="system-status">
 
-                    <br>
+        <span class="status-dot"></span>
 
-                    <p>
-                        <strong>Vehicle:</strong>
-                        ${vehicleData.plateNumber || vehicle}
-                    </p>
+        SYSTEM ONLINE
 
-                    <p>
-                        <strong>Type:</strong>
-                        ${vehicleData.vehicleType || "Unknown"}
-                    </p>
+    </div>
 
-                    <p>
-                        <strong>Reason:</strong>
-                        ${vehicleData.reason || "Not specified"}
-                    </p>
+</header>
 
-                    <p>
-                        <strong>Status:</strong>
-                        ${vehicleData.status || "UNKNOWN"}
-                    </p>
 
-                    <p>
-                        <strong>Priority:</strong>
-                        ${vehicleData.priority || "MEDIUM"}
-                    </p>
 
-                </div>
-            `;
-        } else {
-            result.innerHTML = `
-                <div class="panel"
-                    style="margin-top:20px;background:#eaf7ef;">
+<main>
 
-                    <h3>✓ No Watchlist Match</h3>
 
-                    <br>
+<section class="welcome">
 
-                    <p>
-                        Vehicle
-                        <strong>${vehicle}</strong>
-                        was not found on the current watchlist.
-                    </p>
+    <div>
 
-                </div>
-            `;
-        }
+        <h1>Vehicle Watchlist</h1>
 
-    } catch (error) {
-        console.error("Vehicle search error:", error);
+        <p>
+            Vehicles currently monitored by the system.
+        </p>
 
-        result.innerHTML = `
-            <div class="panel"
-                style="margin-top:20px;background:#fde7e7;">
+    </div>
 
-                <h3>⚠️ Search Error</h3>
+    <div class="location">
+        🇮🇳 Gujarat
+    </div>
 
-                <br>
+</section>
 
-                <p>
-                    Unable to access the vehicle watchlist.
-                    Please try again.
-                </p>
 
-            </div>
-        `;
-    }
-}
 
-// Make the function available to the existing HTML button.
-window.searchVehicle = searchVehicle;
+<section class="panel">
+
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>Search Watchlist</h2>
+
+            <p>
+                Search for a vehicle number.
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="search-box">
+
+        <input
+            type="text"
+            id="vehicleSearch"
+            placeholder="Enter vehicle number e.g. GJ05AB1234"
+        >
+
+        <button onclick="searchVehicle()">
+            🔍 Search
+        </button>
+
+    </div>
+
+
+
+    <div id="searchResult"></div>
+
+
+</section>
+
+
+
+<br>
+
+
+
+<section class="panel">
+
+
+    <div class="panel-header">
+
+        <div>
+
+            <h2>Monitored Vehicles</h2>
+
+            <p>
+                Vehicles currently on the watchlist.
+            </p>
+
+        </div>
+
+    </div>
+
+
+
+    <div class="camera-table">
+
+
+        <div class="table-header">
+
+            <span>Vehicle</span>
+
+            <span>Type</span>
+
+            <span>Reason</span>
+
+            <span>Status</span>
+
+        </div>
+
+
+
+        <div class="table-row">
+
+            <span>
+                GJ05AB1234
+            </span>
+
+            <span>
+                Car
+            </span>
+
+            <span>
+                Stolen Vehicle
+            </span>
+
+            <span class="offline">
+                🚨 Stolen
+            </span>
+
+        </div>
+
+
+
+        <div class="table-row">
+
+            <span>
+                GJ01XY7788
+            </span>
+
+            <span>
+                Motorcycle
+            </span>
+
+            <span>
+                Wanted
+            </span>
+
+            <span class="offline">
+                ⚠️ Wanted
+            </span>
+
+        </div>
+
+
+
+        <div class="table-row">
+
+            <span>
+                GJ18AA4321
+            </span>
+
+            <span>
+                Car
+            </span>
+
+            <span>
+                Blacklisted
+            </span>
+
+            <span class="offline">
+                🚨 Blacklisted
+            </span>
+
+        </div>
+
+
+    </div>
+
+
+</section>
+
+
+</main>
+
+
+
+<footer>
+
+    <p>
+        Gujarat Sentinel Nexus
+    </p>
+
+    <span>
+        CCTV Intelligence & Interoperability Platform
+    </span>
+
+</footer>
+
+
+<script src="js/watchlist.js"></script>
+<script type="module" src="js/session.js"></script>
+
+</body>
+
+</html>
