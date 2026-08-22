@@ -61,6 +61,12 @@ async function loadAlerts() {
 
         const alerts = await getRecentAlerts(10);
 
+        const alertCount = document.querySelector(".alert-count");
+
+if (alertCount) {
+    alertCount.innerText = alerts.length;
+}
+
         const alertBox = document.getElementById("alertBox");
 
         if (!alertBox) {
