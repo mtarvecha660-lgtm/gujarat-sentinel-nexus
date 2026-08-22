@@ -1,4 +1,4 @@
-import { getVehicleByPlate } from "./firestore.js";
+import { getVehicleByPlate, getAllVehicles } from "./firestore.js";
 
 async function searchVehicle() {
     const input = document.getElementById("vehicleSearch");
@@ -54,6 +54,11 @@ async function searchVehicle() {
                         ${vehicleData.priority || "MEDIUM"}
                     </p>
 
+                    <p>
+                        <strong>Record ID:</strong>
+                        ${vehicleData.id || "N/A"}
+                    </p>
+
                 </div>
             `;
         } else {
@@ -96,5 +101,87 @@ async function searchVehicle() {
     }
 }
 
-// Make the function available to the existing HTML button.
+
+async function loadVehicles() {
+    const table = document.querySelector(".camera-table");
+
+    if (!table) {
+        return;
+    }
+
+    try {
+        const vehicles = await getAllVehicles();
+
+        table.innerHTML = `
+            <div class="table-header">
+                <span>Vehicle</span>
+                <span>Type</span>
+                <span>Reason</span>
+                <span>Status</span>
+            </div>
+        `;
+
+        if (vehicles.length === 0) {
+            table.innerHTML += `
+                <div class="table-row">
+                    <span>No vehicles found</span>
+                    <span>-</span>
+                    <span>-</span>
+                    <span>-</span>
+                </div>
+            `;
+
+            return;
+        }
+
+        vehicles.forEach((vehicle) => {
+            const row = document.createElement("div");
+            row.className = "table-row";
+
+            row.innerHTML = `
+                <span>${vehicle.plateNumber || "Unknown"}</span>
+                <span>${vehicle.vehicleType || "Unknown"}</span>
+                <span>${vehicle.reason || "Not specified"}</span>
+                <span class="offline">
+                    ${getStatusIcon(vehicle.status)}
+                    ${vehicle.status || "UNKNOWN"}
+                </span>
+            `;
+
+            table.appendChild(row);
+        });
+
+    } catch (error) {
+        console.error("Vehicle loading error:", error);
+
+        table.innerHTML = `
+            <div class="table-row">
+                <span>⚠️ Unable to load vehicles</span>
+            </div>
+        `;
+    }
+}
+
+
+function getStatusIcon(status) {
+    const normalizedStatus = String(status || "").toUpperCase();
+
+    if (normalizedStatus === "STOLEN") {
+        return "🚨";
+    }
+
+    if (normalizedStatus === "WANTED") {
+        return "⚠️";
+    }
+
+    if (normalizedStatus === "BLACKLISTED") {
+        return "🚨";
+    }
+
+    return "⚠️";
+}
+
+
 window.searchVehicle = searchVehicle;
+
+loadVehicles();
