@@ -154,9 +154,19 @@ if (alertCount) {
 
     } catch (error) {
 
-        console.error("Error loading alerts:", error);
+    console.error("Error loading alerts:", error);
 
+    const alertBox = document.getElementById("alertBox");
+
+    if (alertBox) {
+        alertBox.innerHTML = `
+            <div class="panel" style="background:#fde7e7;">
+                <h3>⚠️ Unable to Load Alerts</h3>
+                <p>Firestore error: ${error.message}</p>
+            </div>
+        `;
     }
+
 }
 
 
