@@ -1,11 +1,12 @@
 import {
     createAlert,
-    getRecentAlerts
+    getRecentAlerts,
+    getVehicleByPlate
 } from "./firestore.js";
 
 
 // ============================================
-// CREATE TEST ALERT
+// CREATE CCTV DETECTION
 // ============================================
 
 async function createTestAlert() {
@@ -14,88 +15,267 @@ async function createTestAlert() {
     const message = document.getElementById("alertMessage");
     const box = document.getElementById("alertBox");
 
-    title.innerText = "⏳ CREATING ALERT...";
-    message.innerHTML = "Saving alert to Firebase...";
+    // Simulated CCTV detection
+    const detectedPlate = "GJ05AB1234";
+    const detectedCamera = "CAM-017";
+    const detectedLocation = "Ahmedabad";
+
+
+    // ============================================
+    // DETECTION STARTED
+    // ============================================
+
+    title.innerText = "📹 VEHICLE DETECTED";
+
+    message.innerHTML =
+        `Checking watchlist for <strong>${detectedPlate}</strong>...`;
+
     box.style.background = "#fff8e1";
+
 
     try {
 
-        await createAlert({
-            vehiclePlate: "GJ05AB1234",
-            cameraId: "CAM-017",
-            location: "Ahmedabad",
-            type: "WATCHLIST_MATCH",
-            severity: "HIGH",
-            status: "OPEN",
-            message: "Stolen vehicle detected"
-        });
+        // ============================================
+        // CHECK FIRESTORE WATCHLIST
+        // ============================================
 
-        title.innerText = "🚨 WATCHLIST MATCH DETECTED";
+        const vehicle =
+            await getVehicleByPlate(detectedPlate);
+
+
+        // ============================================
+        // NO WATCHLIST MATCH
+        // ============================================
+
+        if (!vehicle) {
+
+            title.innerText =
+                "✓ NO WATCHLIST MATCH";
+
+            message.innerHTML =
+                `Vehicle <strong>${detectedPlate}</strong>
+                 was detected, but it is not on the watchlist.`;
+
+            box.style.background =
+                "#eaf7ef";
+
+            return;
+        }
+
+
+        // ============================================
+        // CHECK FOR RECENT DUPLICATE
+        // ============================================
+
+        const recentAlerts =
+            await getRecentAlerts(10);
+
+        const now = Date.now();
+
+
+        const duplicate =
+            recentAlerts.some((alert) => {
+
+                if (
+                    alert.vehiclePlate !== detectedPlate ||
+                    alert.cameraId !== detectedCamera ||
+                    !alert.createdAt ||
+                    !alert.createdAt.toMillis
+                ) {
+                    return false;
+                }
+
+
+                const alertTime =
+                    alert.createdAt.toMillis();
+
+
+                // Prevent duplicate alerts
+                // within 60 seconds
+
+                return (
+                    now - alertTime < 60000
+                );
+
+            });
+
+
+        // ============================================
+        // DUPLICATE FOUND
+        // ============================================
+
+        if (duplicate) {
+
+            title.innerText =
+                "⚠️ ALERT ALREADY EXISTS";
+
+            message.innerHTML =
+                `<strong>${detectedPlate}</strong>
+                 was recently detected by
+                 <strong>${detectedCamera}</strong>.`;
+
+            box.style.background =
+                "#fff8e1";
+
+            return;
+        }
+
+
+        // ============================================
+        // WATCHLIST MATCH
+        // ============================================
+
+        title.innerText =
+            "🚨 WATCHLIST MATCH DETECTED";
+
 
         message.innerHTML =
-            "<strong>Vehicle:</strong> GJ05AB1234<br>" +
-            "<strong>Camera:</strong> CAM-017<br>" +
-            "<strong>Location:</strong> Ahmedabad<br>" +
-            "<strong>Status:</strong> STOLEN VEHICLE";
 
-        box.style.background = "#fff1f1";
+            `<strong>Vehicle:</strong>
+             ${vehicle.plateNumber || detectedPlate}<br>` +
 
-        // Reload alerts from Firestore
+            `<strong>Type:</strong>
+             ${vehicle.vehicleType || "Unknown"}<br>` +
+
+            `<strong>Reason:</strong>
+             ${vehicle.reason || "Unknown"}<br>` +
+
+            `<strong>Status:</strong>
+             ${vehicle.status || "UNKNOWN"}`;
+
+
+        box.style.background =
+            "#fff1f1";
+
+
+        // ============================================
+        // CREATE FIRESTORE ALERT
+        // ============================================
+
+        await createAlert({
+
+            vehiclePlate:
+                vehicle.plateNumber ||
+                detectedPlate,
+
+            cameraId:
+                detectedCamera,
+
+            location:
+                detectedLocation,
+
+            type:
+                "WATCHLIST_MATCH",
+
+            severity:
+                vehicle.priority === "CRITICAL"
+                    ? "CRITICAL"
+                    : "HIGH",
+
+            status:
+                "OPEN",
+
+            message:
+                `Watchlist vehicle detected by ${detectedCamera}`
+
+        });
+
+
+        // ============================================
+        // REFRESH ALERT LIST
+        // ============================================
+
         await loadAlerts();
+
 
     } catch (error) {
 
-        console.error("Alert creation error:", error);
+        console.error(
+            "Vehicle detection error:",
+            error
+        );
 
-        title.innerText = "⚠️ ALERT CREATION FAILED";
+
+        title.innerText =
+            "⚠️ DETECTION FAILED";
+
 
         message.innerHTML =
-            "Unable to save the alert. Please try again.";
+            `Unable to process vehicle detection.<br>
+             ${error.message}`;
 
-        box.style.background = "#fde7e7";
+
+        box.style.background =
+            "#fde7e7";
+
     }
+
 }
 
 
+
 // ============================================
-// LOAD ALERTS
+// LOAD ALERTS FROM FIRESTORE
 // ============================================
 
 async function loadAlerts() {
 
     try {
 
-        const alerts = await getRecentAlerts(10);
+        const alerts =
+            await getRecentAlerts(10);
+
+
+        // ============================================
+        // UPDATE ALERT COUNT
+        // ============================================
 
         const alertCount =
             document.querySelector(".alert-count");
 
+
         if (alertCount) {
-            alertCount.innerText = alerts.length;
+
+            alertCount.innerText =
+                alerts.length;
+
         }
+
+
+        // ============================================
+        // GET ALERT BOX
+        // ============================================
 
         const alertBox =
             document.getElementById("alertBox");
 
+
         if (!alertBox) {
+
             return;
+
         }
 
 
-        // ====================================
+        // ============================================
         // NO ALERTS
-        // ====================================
+        // ============================================
 
         if (alerts.length === 0) {
 
-            alertBox.className = "empty-alerts";
+            alertBox.className =
+                "empty-alerts";
+
 
             alertBox.innerHTML = `
+
                 <div class="empty-icon">
                     ✓
                 </div>
 
-                <h3>No alerts</h3>
+                <h3>
+                    No alerts
+                </h3>
 
                 <p>
                     The system has not detected
@@ -105,21 +285,28 @@ async function loadAlerts() {
                 <button
                     onclick="createTestAlert()"
                     class="test-button">
-                    🚨 Test Alert
+
+                    📹 Simulate CCTV Detection
+
                 </button>
+
             `;
 
             return;
+
         }
 
 
-        // ====================================
-        // ALERTS EXIST
-        // ====================================
+        // ============================================
+        // DISPLAY ALERTS
+        // ============================================
 
-        alertBox.className = "alert-list";
+        alertBox.className =
+            "alert-list";
 
-        alertBox.innerHTML = "";
+
+        alertBox.innerHTML =
+            "";
 
 
         alerts.forEach((alert) => {
@@ -127,21 +314,35 @@ async function loadAlerts() {
             const alertElement =
                 document.createElement("div");
 
-            alertElement.className = "alert-item";
+
+            alertElement.className =
+                "alert-item";
 
 
-            let timestamp = "Unknown time";
+            // ========================================
+            // FORMAT TIMESTAMP
+            // ========================================
+
+            let timestamp =
+                "Unknown time";
+
 
             if (
                 alert.createdAt &&
                 alert.createdAt.toDate
             ) {
+
                 timestamp =
                     alert.createdAt
                         .toDate()
                         .toLocaleString();
+
             }
 
+
+            // ========================================
+            // ALERT HTML
+            // ========================================
 
             alertElement.innerHTML = `
 
@@ -159,53 +360,87 @@ async function loadAlerts() {
 
 
                 <p>
-                    <strong>Vehicle:</strong>
+
+                    <strong>
+                        Vehicle:
+                    </strong>
+
                     ${alert.vehiclePlate || "Unknown"}
+
                 </p>
 
 
                 <p>
-                    <strong>Camera:</strong>
+
+                    <strong>
+                        Camera:
+                    </strong>
+
                     ${alert.cameraId || "Unknown"}
+
                 </p>
 
 
                 <p>
-                    <strong>Location:</strong>
+
+                    <strong>
+                        Location:
+                    </strong>
+
                     ${alert.location || "Unknown"}
+
                 </p>
 
 
                 <p>
-                    <strong>Status:</strong>
+
+                    <strong>
+                        Status:
+                    </strong>
+
                     ${alert.status || "OPEN"}
+
                 </p>
 
 
                 <small>
+
                     ${timestamp}
+
                 </small>
 
             `;
 
 
-            alertBox.appendChild(alertElement);
+            alertBox.appendChild(
+                alertElement
+            );
 
         });
 
-    } catch (error) {
+    }
+
+
+    // ============================================
+    // ERROR HANDLING
+    // ============================================
+
+    catch (error) {
 
         console.error(
             "Error loading alerts:",
             error
         );
 
+
         const alertBox =
             document.getElementById("alertBox");
+
 
         if (alertBox) {
 
             alertBox.innerHTML = `
+
                 <div
                     class="panel"
                     style="background:#fde7e7;">
@@ -220,17 +455,24 @@ async function loadAlerts() {
                     </p>
 
                 </div>
+
             `;
+
         }
+
     }
+
 }
 
 
+
 // ============================================
-// MAKE BUTTON AVAILABLE TO HTML
+// MAKE FUNCTION AVAILABLE TO HTML
 // ============================================
 
-window.createTestAlert = createTestAlert;
+window.createTestAlert =
+    createTestAlert;
+
 
 
 // ============================================
