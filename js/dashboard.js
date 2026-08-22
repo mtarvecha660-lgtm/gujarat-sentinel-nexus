@@ -4,7 +4,10 @@ import {
 } from "./firestore.js";
 
 
-// Create a test alert
+// ============================================
+// CREATE TEST ALERT
+// ============================================
+
 async function createTestAlert() {
 
     const title = document.getElementById("alertTitle");
@@ -37,7 +40,7 @@ async function createTestAlert() {
 
         box.style.background = "#fff1f1";
 
-        // Reload alerts after creating one
+        // Reload alerts from Firestore
         await loadAlerts();
 
     } catch (error) {
@@ -54,59 +57,91 @@ async function createTestAlert() {
 }
 
 
-// Load alerts from Firestore
+// ============================================
+// LOAD ALERTS
+// ============================================
+
 async function loadAlerts() {
 
     try {
 
         const alerts = await getRecentAlerts(10);
 
-        const alertCount = document.querySelector(".alert-count");
+        const alertCount =
+            document.querySelector(".alert-count");
 
-if (alertCount) {
-    alertCount.innerText = alerts.length;
-}
+        if (alertCount) {
+            alertCount.innerText = alerts.length;
+        }
 
-        const alertBox = document.getElementById("alertBox");
+        const alertBox =
+            document.getElementById("alertBox");
 
         if (!alertBox) {
             return;
         }
 
-        // No alerts
+
+        // ====================================
+        // NO ALERTS
+        // ====================================
+
         if (alerts.length === 0) {
 
+            alertBox.className = "empty-alerts";
+
             alertBox.innerHTML = `
-                <div class="empty-alerts">
-
-                    <div class="empty-icon">
-                        ✓
-                    </div>
-
-                    <p>No alerts</p>
-
+                <div class="empty-icon">
+                    ✓
                 </div>
+
+                <h3>No alerts</h3>
+
+                <p>
+                    The system has not detected
+                    any watchlist matches.
+                </p>
+
+                <button
+                    onclick="createTestAlert()"
+                    class="test-button">
+                    🚨 Test Alert
+                </button>
             `;
 
             return;
         }
 
 
-        // Display alerts
+        // ====================================
+        // ALERTS EXIST
+        // ====================================
+
+        alertBox.className = "alert-list";
+
         alertBox.innerHTML = "";
+
 
         alerts.forEach((alert) => {
 
-            const alertElement = document.createElement("div");
+            const alertElement =
+                document.createElement("div");
 
             alertElement.className = "alert-item";
 
+
             let timestamp = "Unknown time";
 
-            if (alert.createdAt && alert.createdAt.toDate) {
+            if (
+                alert.createdAt &&
+                alert.createdAt.toDate
+            ) {
                 timestamp =
-                    alert.createdAt.toDate().toLocaleString();
+                    alert.createdAt
+                        .toDate()
+                        .toLocaleString();
             }
+
 
             alertElement.innerHTML = `
 
@@ -122,25 +157,30 @@ if (alertCount) {
 
                 </div>
 
+
                 <p>
                     <strong>Vehicle:</strong>
                     ${alert.vehiclePlate || "Unknown"}
                 </p>
+
 
                 <p>
                     <strong>Camera:</strong>
                     ${alert.cameraId || "Unknown"}
                 </p>
 
+
                 <p>
                     <strong>Location:</strong>
                     ${alert.location || "Unknown"}
                 </p>
 
+
                 <p>
                     <strong>Status:</strong>
                     ${alert.status || "OPEN"}
                 </p>
+
 
                 <small>
                     ${timestamp}
@@ -148,31 +188,53 @@ if (alertCount) {
 
             `;
 
+
             alertBox.appendChild(alertElement);
 
         });
 
     } catch (error) {
 
-    console.error("Error loading alerts:", error);
+        console.error(
+            "Error loading alerts:",
+            error
+        );
 
-    const alertBox = document.getElementById("alertBox");
+        const alertBox =
+            document.getElementById("alertBox");
 
-    if (alertBox) {
-        alertBox.innerHTML = `
-            <div class="panel" style="background:#fde7e7;">
-                <h3>⚠️ Unable to Load Alerts</h3>
-                <p>Firestore error: ${error.message}</p>
-            </div>
-        `;
+        if (alertBox) {
+
+            alertBox.innerHTML = `
+                <div
+                    class="panel"
+                    style="background:#fde7e7;">
+
+                    <h3>
+                        ⚠️ Unable to Load Alerts
+                    </h3>
+
+                    <p>
+                        Firestore error:
+                        ${error.message}
+                    </p>
+
+                </div>
+            `;
+        }
     }
-
 }
 
 
-// Make test button accessible from HTML
+// ============================================
+// MAKE BUTTON AVAILABLE TO HTML
+// ============================================
+
 window.createTestAlert = createTestAlert;
 
 
-// Load alerts when dashboard opens
+// ============================================
+// LOAD ALERTS WHEN DASHBOARD OPENS
+// ============================================
+
 loadAlerts();
