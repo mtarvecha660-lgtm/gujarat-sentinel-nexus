@@ -9,10 +9,14 @@ import {
     addDoc,
     updateDoc,
     deleteDoc,
-    doc
+    doc,
+    orderBy,
+    limit,
+    serverTimestamp
 } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 import { firebaseConfig } from "./config.js";
+
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -20,6 +24,10 @@ const app = initializeApp(firebaseConfig);
 // Initialize Firestore
 const db = getFirestore(app);
 
+
+// ================================
+// VEHICLE FUNCTIONS
+// ================================
 
 // Get all vehicles
 export async function getAllVehicles() {
@@ -98,6 +106,71 @@ export async function deleteVehicle(vehicleId) {
     const vehicleRef = doc(db, "vehicles", vehicleId);
 
     await deleteDoc(vehicleRef);
+
+    return true;
+}
+
+
+// ================================
+// ALERT FUNCTIONS
+// ================================
+
+// Create a new alert
+export async function createAlert(alertData) {
+    const alertsRef = collection(db, "alerts");
+
+    const data = {
+        vehiclePlate: alertData.vehiclePlate || "",
+        cameraId: alertData.cameraId || "CAM-001",
+        location: alertData.location || "Unknown",
+        type: alertData.type || "WATCHLIST_MATCH",
+        severity: alertData.severity || "HIGH",
+        status: alertData.status || "OPEN",
+        message: alertData.message || "Watchlist vehicle detected",
+        createdAt: serverTimestamp()
+    };
+
+    const document = await addDoc(alertsRef, data);
+
+    return {
+        id: document.id,
+        ...data
+    };
+}
+
+
+// Get recent alerts
+export async function getRecentAlerts(maxResults = 10) {
+    const alertsRef = collection(db, "alerts");
+
+    const alertsQuery = query(
+        alertsRef,
+        orderBy("createdAt", "desc"),
+        limit(maxResults)
+    );
+
+    const snapshot = await getDocs(alertsQuery);
+
+    const alerts = [];
+
+    snapshot.forEach((document) => {
+        alerts.push({
+            id: document.id,
+            ...document.data()
+        });
+    });
+
+    return alerts;
+}
+
+
+// Acknowledge an alert
+export async function acknowledgeAlert(alertId) {
+    const alertRef = doc(db, "alerts", alertId);
+
+    await updateDoc(alertRef, {
+        status: "ACKNOWLEDGED"
+    });
 
     return true;
 }
